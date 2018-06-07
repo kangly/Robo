@@ -8,6 +8,8 @@
 require_once '../function.php';
 
 use QL\QueryList;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class testCommand
 {
@@ -211,5 +213,75 @@ STR;
         $data = $ql->get('http://www.baidu.com/s?wd=QueryList')->find('h3 a')->texts();
 
         de($data->all());
+    }
+
+    public function test9(){
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        //设置文件名称
+        $title = '采集企业信息';
+        $sheet->setTitle($title);
+
+        //设置表头名称
+        $sheet->setCellValue('A1', '企业名称');
+        $sheet->setCellValue('B1', '手机');
+        $sheet->setCellValue('C1', '联系人');
+        $sheet->setCellValue('D1', '企业分类');
+        $sheet->setCellValue('E1', '企业规模');
+        $sheet->setCellValue('F1', '地区');
+
+        $total = 2;
+
+        for($i=1;$i<=$total;$i++)
+        {
+            $url = '../collect1/'.$i.'.html';
+            $content = file_get_contents($url);
+
+            $start_idx = ($i-1)*20+2;
+
+            //采集规则
+            $rules = [
+                'table' => array('table:last','html','-tr:eq(0) -tr:eq(1) -tr:last')
+            ];
+
+            $ql = QueryList::html($content)->rules($rules)->query()->getData();
+            $info = $ql->all();
+            $table_info = $info[0]['table'];
+
+            $rules = array(
+                'title' => array('td:eq(2)','text','',function($content){
+                    $content = str_replace(['[资]','[供]'],'',$content);
+                    return $content;
+                }),
+                'phone' => array('td:eq(4)','text'),
+                'contact' => array('td:eq(6)','text'),
+                'type' => array('td:eq(7)','text'),
+                'scale' => array('td:eq(9)','text'),
+                'address' => array('td:eq(10)','text')
+            );
+
+            $ql2 = QueryList::html($table_info)->rules($rules)->range('tr')->query()->getData();
+            $data = $ql2->all();
+
+            foreach($data as $v)
+            {
+                $sheet->setCellValue('A'.$start_idx, $v['title']);
+                $sheet->setCellValue('B'.$start_idx, $v['phone']);
+                $sheet->setCellValue('C'.$start_idx, $v['contact']);
+                $sheet->setCellValue('D'.$start_idx, $v['type']);
+                $sheet->setCellValue('E'.$start_idx, $v['scale']);
+                $sheet->setCellValue('F'.$start_idx, $v['address']);
+
+                $start_idx++;
+            }
+
+            de($url);
+            de($data);
+        }
+
+        //$writer = new Xlsx($spreadsheet);
+        //$writer->save($title.'.xlsx');
     }
 }

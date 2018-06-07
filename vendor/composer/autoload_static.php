@@ -36,9 +36,11 @@ class ComposerStaticInita858395ca9aef449095e54e07fd46d91
         ),
         'P' => 
         array (
+            'Psr\\SimpleCache\\' => 16,
             'Psr\\Log\\' => 8,
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Container\\' => 14,
+            'PhpOffice\\PhpSpreadsheet\\' => 25,
         ),
         'M' => 
         array (
@@ -115,6 +117,10 @@ class ComposerStaticInita858395ca9aef449095e54e07fd46d91
         array (
             0 => __DIR__ . '/..' . '/jaeger/querylist/src',
         ),
+        'Psr\\SimpleCache\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/simple-cache/src',
+        ),
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
@@ -126,6 +132,10 @@ class ComposerStaticInita858395ca9aef449095e54e07fd46d91
         'Psr\\Container\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/container/src',
+        ),
+        'PhpOffice\\PhpSpreadsheet\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet',
         ),
         'MyTask\\' => 
         array (
