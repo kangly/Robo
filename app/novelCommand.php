@@ -9,8 +9,19 @@ require_once '../function.php';
 
 use QL\QueryList;
 
+/**
+ * 抓取一本小说
+ * Class novelCommand
+ */
 class novelCommand
 {
+    //运行方法:
+    //robo run --load-from /path/to/my/other/project
+    //当前目录:
+    //robo chapter --load-from novelCommand
+    //上级目录:
+    //robo chapter --load-from app/novelCommand
+
     /**
      * 采集小说章节
      */
@@ -19,13 +30,13 @@ class novelCommand
         $url = 'http://mianzhuan.wddsnxn.org/';
         $html = file_get_contents($url);
 
-        //采集规则
-        $rules = [
-            'title' => ['.booklist span a','text'],
-            'link' => ['.booklist span a','href']
-        ];
-
-        $data = QueryList::html($html)->rules($rules)->query()->getData();
+        $data = QueryList::html($html)
+            ->rules([
+                'title' => ['.booklist span a','text'],
+                'link' => ['.booklist span a','href']
+            ])
+            ->query()
+            ->getData();
 
         de($data->all());
     }
@@ -38,12 +49,12 @@ class novelCommand
         $url = 'http://mianzhuan.wddsnxn.org/244.html';
         $html = file_get_contents($url);
 
-        //采集规则
-        $rules = [
-            'content' => ['#BookText','html','-script']
-        ];
-
-        $data = QueryList::html($html)->rules($rules)->query()->getData();
+        $data = QueryList::html($html)
+            ->rules([
+                'content' => ['#BookText','html','-script']
+            ])
+            ->query()
+            ->getData();
 
         de($data->all());
     }

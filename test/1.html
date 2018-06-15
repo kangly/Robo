@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html>
+<head>
+      <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+
+    <title>线下企业管理</title>
+     
+        
+    <script>
+       
+        //获取cookie字符串 
+     
+        var strCookie = document.cookie;
+        var styleTemp = "default";
+        var arrCookie = strCookie.split("; ");
+        for (var i = 0; i < arrCookie.length; i++) {
+            var arr = arrCookie[i].split("=");
+            //找到名称为userId的cookie，并返回它的值 
+            if ("style" == arr[0]) {
+                styleTemp = arr[1];
+               
+                break;
+            }
+        }
+       
+        var style_url = "/Content/JqueryEasyUI/themes/" + styleTemp + "/easyui.css";
+
+        var head = document.getElementsByTagName('HEAD').item(0);
+        var style = document.createElement('link');
+        style.href = style_url;
+        style.rel = 'stylesheet';
+        style.type = 'text/css';
+        head.appendChild(style);
+        //document.createStyleSheet(style_url);
+        //if()
+        //alert(GetQueryString("STYLE"));
+    </script>
+    
+    <link href="/Content/JqueryEasyUI/themes/icon.css" rel="stylesheet" />
+    <link href="/Content/Site.css" rel="stylesheet" />
+
+    
+    <script src="/Content/JqueryEasyUI/jquery-1.8.0.min.js"></script>
+    <script src="/Content/JqueryEasyUI/jquery.easyui.min.js"></script>
+   
+   
+     
+    <script src="/Content/datapattern.js"></script>
+
+
+     
+
+
+ 
+</head>
+<body >
+    
+<style type="text/css">
+    .font_bold {
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .bian {
+        color: #ff0000;
+        text-decoration: none;
+    }
+
+        .bian a:visited {
+            color: #ff0000;
+            text-decoration: none;
+        }
+
+    #loading {
+        _display: none;
+        position: fixed;
+        left: 0;
+        top: 0;
+        z-index: 10000;
+        width: 100%;
+        height: 100%;
+    }
+
+        #loading .ld_overlay {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        #loading .ld_body {
+            position: fixed;
+            left: 46%;
+            top: 320px;
+            width: 180px;
+            height: 40px;
+            padding-top: 10px;
+            border-radius: 3px;
+            background-color: #fafafa;
+            background-color: rgba(0,0,0,.1);
+            color: #666;
+            font-size: 12px;
+            text-align: center;
+        }
+
+            #loading .ld_body p {
+                margin-top: 5px;
+            }
+</style>
+<script type="text/javascript">
+    $(function () {
+
+        //加载城市prov_id
+        var provid = $("*[name='prov_id']").val();
+        var cityid = $("*[name='city_id']").val();
+        if (provid != 0) {
+            $.get("/GQInfo/GetCity", { PID: provid },
+                function (data) {
+                    var hs_1 = data.split('|');
+                    var html_eq1 = "";
+                    html_eq1 += "<option value='0' selected=\"selected\">选择市</option>";
+                    for (var i = 0; i < hs_1.length ; i++) {
+                        if (hs_1[i] != "") {
+                            if (hs_1[i].split(',')[0] == cityid) {
+                                html_eq1 += "<option value='" + hs_1[i].split(',')[0] + "' selected=\"selected\">" + hs_1[i].split(',')[1] + "</option>";
+                            } else {
+                                html_eq1 += "<option value='" + hs_1[i].split(',')[0] + "'>" + hs_1[i].split(',')[1] + "</option>";
+                            }
+                        }
+                    }
+                    $('#frm_city_id').html(html_eq1);
+                });
+        }
+    });
+
+    //加载城市city_id
+    function _csjz() {
+        var value_pid = $('#frm_prov_id').val();
+        var cityid = $("*[name='city_id']").val();
+        $.get("/GQInfo/GetCity", { PID: value_pid },
+            function (data) {
+                var hs_1 = data.split('|');
+
+                var html_eq1 = "";
+                html_eq1 += "<option value='0' selected=\"selected\">选择市</option>";
+                for (var i = 0; i < hs_1.length ; i++) {
+                    if (hs_1[i] != "") {
+                        if (hs_1[i].split(',')[0] == cityid) {
+                            html_eq1 += "<option value='" + hs_1[i].split(',')[0] + "' selected=\"selected\">" + hs_1[i].split(',')[1] + "</option>";
+                        } else {
+                            html_eq1 += "<option value='" + hs_1[i].split(',')[0] + "'>" + hs_1[i].split(',')[1] + "</option>";
+                        }
+                    }
+                }
+                $('#frm_city_id').html(html_eq1);
+            });
+    }
+
+    function TurnTo(urlstr) {
+        window.location.href = urlstr + "&page=" + $('#topage').val();
+    }
+    function showUrl(obj, id) {
+        obj.className = "bian";//点击切换样式
+        //$.get("/LineQY/UpdateDate", { id: id });
+    }
+    function SALLMetHod(flag) {
+        var checklist = $("input[name='ID']");
+        var ids = "";
+        for (var i = 0; i < checklist.length; i++) {
+            $(checklist[i]).attr('checked', flag);
+        }
+    }
+    function del(id) {
+        if (confirm("确认要删除吗?")) {
+            $('#loading').css('display', 'block');
+            $.get("/LineQY/DelCollect", { id: id },
+                function (data) {
+                    $('#loading').css('display', 'none');
+                    if (data == "ok") {
+                        alert("删除成功！");
+                        window.location.reload();
+                    } else if (data == "-99") {
+                        alert("对不起，您没有该权限！");
+                    } else {
+                        alert("删除失败！");
+                    }
+                })
+        }
+    }
+    function CheckDel() {
+        var checklist = $("input[name='ID']");
+        var ids = "";
+        for (var i = 0; i < checklist.length; i++) {
+            if ($(checklist[i]).attr('checked') == 'checked') {
+                ids += $(checklist[i]).val() + ",";
+            }
+        }
+        if (ids == "") {
+            alert('请选择要删除项!'); return;
+        }
+        if (!confirm("确定要删除吗？")) {
+            return false;
+        }
+        $('#loading').css('display', 'block');
+        $.post("/LineQY/DelInfos", { ids: ids }, function (data) {
+            $('#loading').css('display', 'none');
+            if (data == "1") {
+                alert('删除成功'); window.location.reload();
+            } else if (data == "-99") {
+                alert("对不起亲，没有权限！");
+            } else {
+                alert('删除失败');
+            }
+        });
+    }
+
+    function zhuanyiQYData() {
+        var fromuid = $("#selFromUid").val();
+        var fromuname = $("#selFromUid  option:selected").text();
+        var touid = $("#selToUid").val();
+        var touname = $("#selToUid  option:selected").text();
+        var fromuprov = $("#selFromUidProv").val();
+        var fromuprovname = $("#selFromUidProv  option:selected").text();
+        var fromucate = $("#selFromUidCate").val();
+        var fromucatename = $("#selFromUidCate  option:selected").text();
+        var fromuinfosum = $("#selInfoSum  option:selected").val();
+        var fromuinfosumtext = $("#selInfoSum  option:selected").text();
+
+        var confirmStr = "确定将用户【" + fromuname + "】"
+            + (fromuprov > 0 ? "【" + fromuprovname + "】" : "")
+            + (fromucate > 0 ? "【" + fromucatename + "】" : "")
+            + (fromuinfosum > -1 ? "【" + fromuinfosumtext + "】" : "")
+            + "企业数据转移到所选用户【" + touname + "】吗？";
+
+        if (fromuid != "-1" && touid != "-1" && fromuid != touid) {
+            if (confirm(confirmStr)) {
+                $.post("/LineQY/ZhuanyiQYData", {
+                    fromuid: fromuid,
+                    touid: touid,
+                    fromuprov: fromuprov,
+                    fromucate: fromucate,
+                    fromuinfosum: fromuinfosum
+                }, function (data) {
+                    if (data > 0) {
+                        alert("数据成功转移" + data + "条数据！");
+                    }
+                    else if (data == -1) {
+                        alert("当前用户没有数据，不需要转移！");
+                    } else {
+                        alert("服务器错误！");
+                    }
+                });
+            }
+        } else {
+            alert("请选择用户！");
+        }
+    }
+
+</script>
+
+
+
+<div id="loading" style="display: none">
+    <div class="ld_overlay"></div>
+    <div class="ld_body">
+        <img src="/Content/images/loading.gif" alt="" /><p>命令执行中,请稍候...</p>
+    </div>
+</div>
+<table width="99%" border="1" align="center" cellpadding="0" cellspacing="0" bordercolorlight="#999999" bordercolordark="#FFFFFF">
+    <tr>
+        <td colspan="12" height="32" align="center" class="font_bold" bgcolor="#efefef">线下企业库列表</td>
+    </tr>
+</table>
+<table width="99%" align="center" cellpadding="5" cellspacing="1" bgcolor="#999999">
+    <tr class="font_bold">
+            <td align='center' bgcolor='#efefef'><a href='?li_state=0&amp;keywords=&amp;searchid=&amp;view_sh=0&amp;li_info_sum=-1&amp;bcid=0&amp;cid=0&amp;frm_prov_id=0&amp;frm_city_id=0&amp;qytype=&amp;qytype1=1&amp;yonghutype=0'>所有</a></td>
+                    <td align='center' bgcolor='#efefef'><a href='?li_state=0&amp;keywords=&amp;searchid=&amp;view_sh=0&amp;li_info_sum=-1&amp;bcid=1&amp;cid=0&amp;frm_prov_id=0&amp;frm_city_id=0&amp;qytype=&amp;qytype1=1&amp;yonghutype=0'>工业</a></td>
+                    <td align='center' bgcolor='#efefef'><a href='?li_state=0&amp;keywords=&amp;searchid=&amp;view_sh=0&amp;li_info_sum=-1&amp;bcid=2&amp;cid=0&amp;frm_prov_id=0&amp;frm_city_id=0&amp;qytype=&amp;qytype1=1&amp;yonghutype=0'>废旧物资</a></td>
+                    <td align='center' bgcolor='#efefef'><a href='?li_state=0&amp;keywords=&amp;searchid=&amp;view_sh=0&amp;li_info_sum=-1&amp;bcid=3&amp;cid=0&amp;frm_prov_id=0&amp;frm_city_id=0&amp;qytype=&amp;qytype1=1&amp;yonghutype=0'>机床/木工</a></td>
+                    <td align='center' bgcolor='#efefef'><a href='?li_state=0&amp;keywords=&amp;searchid=&amp;view_sh=0&amp;li_info_sum=-1&amp;bcid=4&amp;cid=0&amp;frm_prov_id=0&amp;frm_city_id=0&amp;qytype=&amp;qytype1=1&amp;yonghutype=0'>纺织/服装/洗涤</a></td>
+                    <td align='center' bgcolor='#efefef'><a href='?li_state=0&amp;keywords=&amp;searchid=&amp;view_sh=0&amp;li_info_sum=-1&amp;bcid=5&amp;cid=0&amp;frm_prov_id=0&amp;frm_city_id=0&amp;qytype=&amp;qytype1=1&amp;yonghutype=0'>冶金/矿业/工程</a></td>
+                    <td align='center' bgcolor='#efefef'><a href='?li_state=0&amp;keywords=&amp;searchid=&amp;view_sh=0&amp;li_info_sum=-1&amp;bcid=6&amp;cid=0&amp;frm_prov_id=0&amp;frm_city_id=0&amp;qytype=&amp;qytype1=1&amp;yonghutype=0'>印刷/包装/造纸</a></td>
+                    <td align='center' bgcolor='#efefef'><a href='?li_state=0&amp;keywords=&amp;searchid=&amp;view_sh=0&amp;li_info_sum=-1&amp;bcid=7&amp;cid=0&amp;frm_prov_id=0&amp;frm_city_id=0&amp;qytype=&amp;qytype1=1&amp;yonghutype=0'>化工/塑胶/炼油</a></td>
+                    <td align='center' bgcolor='#efefef'><a href='?li_state=0&amp;keywords=&amp;searchid=&amp;view_sh=0&amp;li_info_sum=-1&amp;bcid=8&amp;cid=0&amp;frm_prov_id=0&amp;frm_city_id=0&amp;qytype=&amp;qytype1=1&amp;yonghutype=0'>水泥/建材/陶瓷</a></td>
+                    <td align='center' bgcolor='#efefef'><a href='?li_state=0&amp;keywords=&amp;searchid=&amp;view_sh=0&amp;li_info_sum=-1&amp;bcid=9&amp;cid=0&amp;frm_prov_id=0&amp;frm_city_id=0&amp;qytype=&amp;qytype1=1&amp;yonghutype=0'>通用设备/配件</a></td>
+                    <td align='center' bgcolor='#efefef'><a href='?li_state=0&amp;keywords=&amp;searchid=&amp;view_sh=0&amp;li_info_sum=-1&amp;bcid=10&amp;cid=0&amp;frm_prov_id=0&amp;frm_city_id=0&amp;qytype=&amp;qytype1=1&amp;yonghutype=0'>食品</a></td>
+                    <td align='center' bgcolor='#efefef'><a href='?li_state=0&amp;keywords=&amp;searchid=&amp;view_sh=0&amp;li_info_sum=-1&amp;bcid=11&amp;cid=0&amp;frm_prov_id=0&amp;frm_city_id=0&amp;qytype=&amp;qytype1=1&amp;yonghutype=0'>通用电力/仪表</a></td>
+                    <td align='center' bgcolor='#efefef'><a href='?li_state=0&amp;keywords=&amp;searchid=&amp;view_sh=0&amp;li_info_sum=-1&amp;bcid=12&amp;cid=0&amp;frm_prov_id=0&amp;frm_city_id=0&amp;qytype=&amp;qytype1=1&amp;yonghutype=0'>农业/油品</a></td>
+                    <td align='center' bgcolor='#efefef'><a href='?li_state=0&amp;keywords=&amp;searchid=&amp;view_sh=0&amp;li_info_sum=-1&amp;bcid=13&amp;cid=0&amp;frm_prov_id=0&amp;frm_city_id=0&amp;qytype=&amp;qytype1=1&amp;yonghutype=0'>交通运输/电力</a></td>
+                    <td align='center' bgcolor='#efefef'><a href='?li_state=0&amp;keywords=&amp;searchid=&amp;view_sh=0&amp;li_info_sum=-1&amp;bcid=14&amp;cid=0&amp;frm_prov_id=0&amp;frm_city_id=0&amp;qytype=&amp;qytype1=1&amp;yonghutype=0'>服务业</a></td>
+                    <td align='center' bgcolor='#efefef'><a href='?li_state=0&amp;keywords=&amp;searchid=&amp;view_sh=0&amp;li_info_sum=-1&amp;bcid=15&amp;cid=0&amp;frm_prov_id=0&amp;frm_city_id=0&amp;qytype=&amp;qytype1=1&amp;yonghutype=0'>拍卖行</a></td>
+                    <td align='center' bgcolor='#efefef'><a href='?li_state=0&amp;keywords=&amp;searchid=&amp;view_sh=0&amp;li_info_sum=-1&amp;bcid=16&amp;cid=0&amp;frm_prov_id=0&amp;frm_city_id=0&amp;qytype=&amp;qytype1=1&amp;yonghutype=0'>其他分类</a></td>
+
+    </tr>
+    <tr class="font_bold"></tr>
+</table>
+
+<form action="/LineQY" method="post">    <table width="99%" border="1" align="center" cellpadding="0" cellspacing="0" bordercolorlight="#999999" bordercolordark="#FFFFFF">
+        <tr>
+            <td width="100%" height="28" align="center">
+                搜索内容：
+                <input id="keywords" name="keywords" class="easyui-text" style="width: 200px" value="" />
+                <select name="searchid" id="searchid">
+                    <option value="key_handtel" >手机号</option>
+                    <option value="key_company" >企业名称</option>
+                    <option value="key_html" >处理公告</option>
+                    <option value="key_aid" >按采编ID</option>
+                    <option value="key_remark" >备注</option>
+                </select>
+                地区：
+                <select id="frm_prov_id" size="1" name="frm_prov_id" onchange="_csjz()">
+                    <option value="0" selected="selected">选择省</option>
+                            <option value="110000" >北京市</option>
+                            <option value="120000" >天津市</option>
+                            <option value="130000" >河北省</option>
+                            <option value="140000" >山西省</option>
+                            <option value="150000" >内蒙古自治区</option>
+                            <option value="210000" >辽宁省</option>
+                            <option value="220000" >吉林省</option>
+                            <option value="230000" >黑龙江省</option>
+                            <option value="310000" >上海市</option>
+                            <option value="320000" >江苏省</option>
+                            <option value="330000" >浙江省</option>
+                            <option value="340000" >安徽省</option>
+                            <option value="350000" >福建省</option>
+                            <option value="360000" >江西省</option>
+                            <option value="370000" >山东省</option>
+                            <option value="410000" >河南省</option>
+                            <option value="420000" >湖北省</option>
+                            <option value="430000" >湖南省</option>
+                            <option value="440000" >广东省</option>
+                            <option value="450000" >广西自治区</option>
+                            <option value="460000" >海南省</option>
+                            <option value="500000" >重庆市</option>
+                            <option value="510000" >四川省</option>
+                            <option value="520000" >贵州省</option>
+                            <option value="530000" >云南省</option>
+                            <option value="540000" >西藏自治区</option>
+                            <option value="610000" >陕西省</option>
+                            <option value="620000" >甘肃省</option>
+                            <option value="630000" >青海省</option>
+                            <option value="640000" >宁夏自治区</option>
+                            <option value="650000" >新疆自治区</option>
+                            <option value="710000" >台湾省</option>
+                            <option value="810000" >香港</option>
+                            <option value="820000" >澳门</option>
+                </select>
+                <select id="frm_city_id" size="1" name="frm_city_id">
+                    <option value="0" selected="selected">选择市</option>
+                </select>
+                <select id="view_sh" name="view_sh">
+                        <option value="0" selected=&quot;selected&quot;>企业规模</option>
+                        <option value="1" >特大</option>
+                        <option value="2" >大型</option>
+                        <option value="3" >中型</option>
+                        <option value="4" >小型</option>
+                </select>
+                <select name="li_info_sum">
+                    <option value="-1" selected=&quot;selected&quot;>企业来源</option>
+                        <option value="0" >快速发布</option>
+                        <option value="1" >外部</option>
+                        <option value="2" >内部</option>
+                        <option value="3" >外转内部</option>
+                </select>
+                企业分类：<select id="qytype" name="qytype">
+                            <option value="全部" >全部</option>
+                            <option value="A" >A</option>
+                            <option value="B" >B</option>
+                            <option value="C" >C</option>
+                            <option value="D" >D</option>
+                            <option value="E" >E</option>
+
+                </select>&nbsp;&nbsp;公有/私有：
+                <select id="qytype1" size="1" name="qytype1">
+                    <option value="0" >一所有一</option>
+                    <option value="1" selected="selected">私有库</option>
+                    <option value="2" >公有库</option>
+                </select>&nbsp;&nbsp;添加方式：
+                <select name="li_state" id="li_state">
+                    <option value="0" selected="selected">—全部—</option>
+                    <option value="1" >后台添加</option>
+                    <option value="2" >采集添加</option>
+                </select>&nbsp;&nbsp;是否处理过物资：
+                <select id="ischakan" name="ischakan">
+                    <option value="-1" >一不限一</option>
+                    <option value="1" >是</option>
+                    <option value="0" >否</option>
+                </select>
+                &nbsp;&nbsp;用户：
+                <select name="yonghutype" id="yonghutype">
+                    <option value="0" selected="selected">当前用户</option>
+                    <option value="1" >所有用户</option>
+                </select>
+                <input type="hidden" name="searchqiyeky" value="1">
+                <input type="hidden" name="cid" id="cid" value="0">
+                <input type="hidden" name="bcid" id="bcid" value="0">
+                <input type="hidden" name="prov_id" id="prov_id" value="0">
+                <input type="hidden" name="city_id" id="city_id" value="0">
+                <input type="submit" name="Submit" value="提 交"><b></b>
+            </td>
+        </tr>
+    </table>
+</form>
+<table width="99%" border="1" align="center" cellpadding="0" cellspacing="0" bordercolorlight="#999999" bordercolordark="#FFFFFF">
+    <tr>
+        <td width="100%" colspan="16" height="28" align="center">
+            <strong>（添加/访问）日期颜色标识：</strong>
+            <font color="#FF0000">红色：当天</font>
+            <font color="#BB00CC">紫色：一周内</font>
+            <font color="#0000FF">蓝色：两周内</font>
+            <font color="#009900">绿色：一个月内</font>
+            <font color="#999999">灰色：一个月外</font>
+        </td>
+    </tr>
+    <tr bgcolor="#efefef" height="28">
+        <td width="2%" align="center"><strong>NO.</strong></td>
+        <td width="2%" align="center">
+            <input type="checkbox" name="selall" value="" onclick="SALLMetHod(this.checked);" />
+        </td>
+        <td width="15%" align="center"><strong>企业名称</strong></td>
+        <td width="4%" align="center"><strong>添加用户</strong></td>
+        <td width="6%" align="20nter"><strong>手机号</strong></td>
+        
+        <td width="6%" align="center"><strong>来源</strong></td>
+        <td width="6%" align="center"><strong>联系人</strong></td>
+        <td width="6%" align="center"><strong>企业分类</strong></td>
+        <td width="3%" align="center"><strong>公有/私有</strong></td>
+        <td width="4%" align="center"><strong>企业规模</strong></td>
+        <td width="9%" align="center"><strong>地区</strong></td>
+        <td width="4%" align="center"><strong>查看</strong></td>
+        <td width="6%" align="center"><strong>添加日期</strong></td>
+        <td width="10%" align="center"><strong>访问日期</strong></td>
+        <td width="6%" align="center"><strong>回访人</strong></td>
+        
+        <td width="15%" align="center"><strong>操作</strong></td>
+    </tr>
+<tr bgcolor="#ffffff" onMouseOver="this.bgColor='#B3CFEE'" onMouseOut="this.bgColor='#ffffff'"><td align="center" >1</td><td align="center" height="24"><input type="checkbox" name="ID" value="21059"></td><td class=bianse><a href="/Zichan/InfoAdd?qid=21059&lineqy=1" style="color:#EE00EE;">[资]</a><a href="/GQInfo/InfoAdd?qid=21059&lineqy=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1" style="color:#EE00EE;">[供]</a><a style='cursor:pointer;'  href="javascript:void(0);" onclick="showUrl(this,21059);" target="_blank" >温州花边机</a> </td> <td align='left'>&nbsp;<a href='?searchid=key_aid&keywords=121'><font color='#0000ff'>徐蕊</font></a></td><td align="center"><strong>13587844780</strong></td><td align="center">外部</td><td align="center">个人</td><td align="center">纺织厂</td><td align="center">私有</td><td align="center">小型</td><td align="center">浙江-温州市</td><td align="center">0</td><td align="center"><font color=#999999>2015/8/8</font></td><td align="center"><font color=#999999>2015/8/8 14:32:21</font></td><td align="center"></td><td align="center">[<a target="_blank" href="/LineQY/Info?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1&id=21059">编辑</a>][<a href="/LineQY/InsertOLViewLog?ol_Oid=21059&url=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1">添加</a>][<a href="/LineQY/OLViewList?seakey=21059&seatype=2">查看</a>]<a href="javascript:del(21059);">[删除]</a></td></tr><tr bgcolor="#ffffff" onMouseOver="this.bgColor='#B3CFEE'" onMouseOut="this.bgColor='#ffffff'"><td align="center" >2</td><td align="center" height="24"><input type="checkbox" name="ID" value="21079"></td><td class=bianse><a href="/Zichan/InfoAdd?qid=21079&lineqy=1" style="color:#EE00EE;">[资]</a><a href="/GQInfo/InfoAdd?qid=21079&lineqy=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1" style="color:#EE00EE;">[供]</a><a style='cursor:pointer;'  href="javascript:void(0);" onclick="showUrl(this,21079);" target="_blank" >嘉兴气流纺</a> </td> <td align='left'>&nbsp;<a href='?searchid=key_aid&keywords=121'><font color='#0000ff'>徐蕊</font></a></td><td align="center"><strong>13586487502</strong></td><td align="center">外部</td><td align="center">徐先生</td><td align="center">纺织厂</td><td align="center">私有</td><td align="center">小型</td><td align="center">浙江-嘉兴市</td><td align="center">0</td><td align="center"><font color=#999999>2015/8/8</font></td><td align="center"><font color=#999999>2015/8/8 14:45:04</font></td><td align="center"></td><td align="center">[<a target="_blank" href="/LineQY/Info?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1&id=21079">编辑</a>][<a href="/LineQY/InsertOLViewLog?ol_Oid=21079&url=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1">添加</a>][<a href="/LineQY/OLViewList?seakey=21079&seatype=2">查看</a>]<a href="javascript:del(21079);">[删除]</a></td></tr><tr bgcolor="#ffffff" onMouseOver="this.bgColor='#B3CFEE'" onMouseOut="this.bgColor='#ffffff'"><td align="center" >3</td><td align="center" height="24"><input type="checkbox" name="ID" value="22381"></td><td class=bianse><a href="/Zichan/InfoAdd?qid=22381&lineqy=1" style="color:#EE00EE;">[资]</a><a href="/GQInfo/InfoAdd?qid=22381&lineqy=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1" style="color:#EE00EE;">[供]</a><a style='cursor:pointer;'  href="javascript:void(0);" onclick="showUrl(this,22381);" target="_blank" >营口市老边区竞赢织布厂</a> </td> <td align='left'>&nbsp;<a href='?searchid=key_aid&keywords=121'><font color='#0000ff'>徐蕊</font></a></td><td align="center"><strong>13841782118</strong></td><td align="center">外部</td><td align="center">个人</td><td align="center">纺织厂</td><td align="center">私有</td><td align="center">小型</td><td align="center">辽宁-营口市</td><td align="center">0</td><td align="center"><font color=#999999>2015/8/21</font></td><td align="center"><font color=#999999>2015/8/21 15:28:24</font></td><td align="center"></td><td align="center">[<a target="_blank" href="/LineQY/Info?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1&id=22381">编辑</a>][<a href="/LineQY/InsertOLViewLog?ol_Oid=22381&url=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1">添加</a>][<a href="/LineQY/OLViewList?seakey=22381&seatype=2">查看</a>]<a href="javascript:del(22381);">[删除]</a></td></tr><tr bgcolor="#ffffff" onMouseOver="this.bgColor='#B3CFEE'" onMouseOut="this.bgColor='#ffffff'"><td align="center" >4</td><td align="center" height="24"><input type="checkbox" name="ID" value="27810"></td><td class=bianse><a href="/Zichan/InfoAdd?qid=27810&lineqy=1" style="color:#EE00EE;">[资]</a><a href="/GQInfo/InfoAdd?qid=27810&lineqy=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1" style="color:#EE00EE;">[供]</a><a style='cursor:pointer;'  href="javascript:void(0);" onclick="showUrl(this,27810);" target="_blank" >黄山通宇服装有限公司 停机】</a> </td> <td align='left'>&nbsp;<a href='?searchid=key_aid&keywords=121'><font color='#0000ff'>徐蕊</font></a></td><td align="center"><strong>13695594840</strong></td><td align="center">外部</td><td align="center">章义鹏</td><td align="center">服装厂</td><td align="center">私有</td><td align="center">小型</td><td align="center">安徽-黄山市</td><td align="center">0</td><td align="center"><font color=#999999>2015/11/27</font></td><td align="center"><font color=#999999>2015/11/27 11:48:34</font></td><td align="center"></td><td align="center">[<a target="_blank" href="/LineQY/Info?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1&id=27810">编辑</a>][<a href="/LineQY/InsertOLViewLog?ol_Oid=27810&url=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1">添加</a>][<a href="/LineQY/OLViewList?seakey=27810&seatype=2">查看</a>]<a href="javascript:del(27810);">[删除]</a></td></tr><tr bgcolor="#ffffff" onMouseOver="this.bgColor='#B3CFEE'" onMouseOut="this.bgColor='#ffffff'"><td align="center" >5</td><td align="center" height="24"><input type="checkbox" name="ID" value="27902"></td><td class=bianse><a href="/Zichan/InfoAdd?qid=27902&lineqy=1" style="color:#EE00EE;">[资]</a><a href="/GQInfo/InfoAdd?qid=27902&lineqy=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1" style="color:#EE00EE;">[供]</a><a style='cursor:pointer;'  href="javascript:void(0);" onclick="showUrl(this,27902);" target="_blank" >明光市涧溪镇官山明溪矿品厂</a> </td> <td align='left'>&nbsp;<a href='?searchid=key_aid&keywords=121'><font color='#0000ff'>徐蕊</font></a></td><td align="center"><strong>13955090579</strong></td><td align="center">外部</td><td align="center">杨伦寿</td><td align="center">矿业厂</td><td align="center">私有</td><td align="center">小型</td><td align="center">安徽-滁州市</td><td align="center">0</td><td align="center"><font color=#999999>2015/11/27</font></td><td align="center"><font color=#999999>2015/11/27 17:22:22</font></td><td align="center"></td><td align="center">[<a target="_blank" href="/LineQY/Info?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1&id=27902">编辑</a>][<a href="/LineQY/InsertOLViewLog?ol_Oid=27902&url=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1">添加</a>][<a href="/LineQY/OLViewList?seakey=27902&seatype=2">查看</a>]<a href="javascript:del(27902);">[删除]</a></td></tr><tr bgcolor="#ffffff" onMouseOver="this.bgColor='#B3CFEE'" onMouseOut="this.bgColor='#ffffff'"><td align="center" >6</td><td align="center" height="24"><input type="checkbox" name="ID" value="28701"></td><td class=bianse><a href="/Zichan/InfoAdd?qid=28701&lineqy=1" style="color:#EE00EE;">[资]</a><a href="/GQInfo/InfoAdd?qid=28701&lineqy=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1" style="color:#EE00EE;">[供]</a><a style='cursor:pointer;'  href="javascript:void(0);" onclick="showUrl(this,28701);" target="_blank" >安徽电力建设一公司</a> </td> <td align='left'>&nbsp;<a href='?searchid=key_aid&keywords=121'><font color='#0000ff'>徐蕊</font></a></td><td align="center"><strong>18355497706</strong></td><td align="center">外部</td><td align="center">马先生</td><td align="center">电力公司</td><td align="center">私有</td><td align="center">小型</td><td align="center">安徽-淮南市</td><td align="center">0</td><td align="center"><font color=#999999>2015/12/11</font></td><td align="center"><font color=#999999>2015/12/11 10:54:11</font></td><td align="center"></td><td align="center">[<a target="_blank" href="/LineQY/Info?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1&id=28701">编辑</a>][<a href="/LineQY/InsertOLViewLog?ol_Oid=28701&url=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1">添加</a>][<a href="/LineQY/OLViewList?seakey=28701&seatype=2">查看</a>]<a href="javascript:del(28701);">[删除]</a></td></tr><tr bgcolor="#ffffff" onMouseOver="this.bgColor='#B3CFEE'" onMouseOut="this.bgColor='#ffffff'"><td align="center" >7</td><td align="center" height="24"><input type="checkbox" name="ID" value="30690"></td><td class=bianse><a href="/Zichan/InfoAdd?qid=30690&lineqy=1" style="color:#EE00EE;">[资]</a><a href="/GQInfo/InfoAdd?qid=30690&lineqy=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1" style="color:#EE00EE;">[供]</a><a style='cursor:pointer;'  href="javascript:void(0);" onclick="showUrl(this,30690);" target="_blank" >长春三峰光电有限公司</a> </td> <td align='left'>&nbsp;<a href='?searchid=key_aid&keywords=121'><font color='#0000ff'>徐蕊</font></a></td><td align="center"><strong>15843067888</strong></td><td align="center">外部</td><td align="center">个人</td><td align="center">电力厂</td><td align="center">私有</td><td align="center">小型</td><td align="center">吉林-长春市</td><td align="center">0</td><td align="center"><font color=#999999>2016/1/8</font></td><td align="center"><font color=#999999>2016/1/8 16:17:56</font></td><td align="center"></td><td align="center">[<a target="_blank" href="/LineQY/Info?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1&id=30690">编辑</a>][<a href="/LineQY/InsertOLViewLog?ol_Oid=30690&url=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1">添加</a>][<a href="/LineQY/OLViewList?seakey=30690&seatype=2">查看</a>]<a href="javascript:del(30690);">[删除]</a></td></tr><tr bgcolor="#ffffff" onMouseOver="this.bgColor='#B3CFEE'" onMouseOut="this.bgColor='#ffffff'"><td align="center" >8</td><td align="center" height="24"><input type="checkbox" name="ID" value="30721"></td><td class=bianse><a href="/Zichan/InfoAdd?qid=30721&lineqy=1" style="color:#EE00EE;">[资]</a><a href="/GQInfo/InfoAdd?qid=30721&lineqy=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1" style="color:#EE00EE;">[供]</a><a style='cursor:pointer;'  href="javascript:void(0);" onclick="showUrl(this,30721);" target="_blank" >中山市永峰电子</a> </td> <td align='left'>&nbsp;<a href='?searchid=key_aid&keywords=121'><font color='#0000ff'>徐蕊</font></a></td><td align="center"><strong>13777609000 </strong></td><td align="center">外部</td><td align="center">方先生 </td><td align="center">电子厂</td><td align="center">私有</td><td align="center">小型</td><td align="center">浙江-台州市</td><td align="center">0</td><td align="center"><font color=#999999>2016/1/9</font></td><td align="center"><font color=#999999>2016/1/9 9:29:19</font></td><td align="center"></td><td align="center">[<a target="_blank" href="/LineQY/Info?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1&id=30721">编辑</a>][<a href="/LineQY/InsertOLViewLog?ol_Oid=30721&url=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1">添加</a>][<a href="/LineQY/OLViewList?seakey=30721&seatype=2">查看</a>]<a href="javascript:del(30721);">[删除]</a></td></tr><tr bgcolor="#ffffff" onMouseOver="this.bgColor='#B3CFEE'" onMouseOut="this.bgColor='#ffffff'"><td align="center" >9</td><td align="center" height="24"><input type="checkbox" name="ID" value="30728"></td><td class=bianse><a href="/Zichan/InfoAdd?qid=30728&lineqy=1" style="color:#EE00EE;">[资]</a><a href="/GQInfo/InfoAdd?qid=30728&lineqy=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1" style="color:#EE00EE;">[供]</a><a style='cursor:pointer;'  href="javascript:void(0);" onclick="showUrl(this,30728);" target="_blank" >余姚市城区梁堰保温建材厂</a> </td> <td align='left'>&nbsp;<a href='?searchid=key_aid&keywords=121'><font color='#0000ff'>徐蕊</font></a></td><td align="center"><strong>13605848196</strong></td><td align="center">外部</td><td align="center">徐国尧</td><td align="center">建材厂</td><td align="center">私有</td><td align="center">小型</td><td align="center">浙江-宁波市</td><td align="center">0</td><td align="center"><font color=#999999>2016/1/9</font></td><td align="center"><font color=#999999>2016/1/9 9:33:06</font></td><td align="center"></td><td align="center">[<a target="_blank" href="/LineQY/Info?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1&id=30728">编辑</a>][<a href="/LineQY/InsertOLViewLog?ol_Oid=30728&url=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1">添加</a>][<a href="/LineQY/OLViewList?seakey=30728&seatype=2">查看</a>]<a href="javascript:del(30728);">[删除]</a></td></tr><tr bgcolor="#ffffff" onMouseOver="this.bgColor='#B3CFEE'" onMouseOut="this.bgColor='#ffffff'"><td align="center" >10</td><td align="center" height="24"><input type="checkbox" name="ID" value="31797"></td><td class=bianse><a href="/Zichan/InfoAdd?qid=31797&lineqy=1" style="color:#EE00EE;">[资]</a><a href="/GQInfo/InfoAdd?qid=31797&lineqy=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1" style="color:#EE00EE;">[供]</a><a style='cursor:pointer;'  href="javascript:void(0);" onclick="showUrl(this,31797);" target="_blank" >宁夏天嘉电线电缆有限公司  </a> </td> <td align='left'>&nbsp;<a href='?searchid=key_aid&keywords=121'><font color='#0000ff'>徐蕊</font></a></td><td align="center"><strong>13904244981</strong></td><td align="center">外部</td><td align="center">金经理</td><td align="center">电子厂</td><td align="center">私有</td><td align="center">小型</td><td align="center">辽宁-本溪市</td><td align="center">0</td><td align="center"><font color=#999999>2016/1/27</font></td><td align="center"><font color=#999999>2016/1/27 10:54:10</font></td><td align="center"></td><td align="center">[<a target="_blank" href="/LineQY/Info?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1&id=31797">编辑</a>][<a href="/LineQY/InsertOLViewLog?ol_Oid=31797&url=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1">添加</a>][<a href="/LineQY/OLViewList?seakey=31797&seatype=2">查看</a>]<a href="javascript:del(31797);">[删除]</a></td></tr><tr bgcolor="#ffffff" onMouseOver="this.bgColor='#B3CFEE'" onMouseOut="this.bgColor='#ffffff'"><td align="center" >11</td><td align="center" height="24"><input type="checkbox" name="ID" value="33345"></td><td class=bianse><a href="/Zichan/InfoAdd?qid=33345&lineqy=1" style="color:#EE00EE;">[资]</a><a href="/GQInfo/InfoAdd?qid=33345&lineqy=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1" style="color:#EE00EE;">[供]</a><a style='cursor:pointer;'  href="javascript:void(0);" onclick="showUrl(this,33345);" target="_blank" >嘉兴市白浪淀粉制品有限公司</a> </td> <td align='left'>&nbsp;<a href='?searchid=key_aid&keywords=121'><font color='#0000ff'>徐蕊</font></a></td><td align="center"><strong>13606732286</strong></td><td align="center">外部</td><td align="center">陈杰</td><td align="center">淀粉公司</td><td align="center">私有</td><td align="center">小型</td><td align="center">浙江-嘉兴市</td><td align="center">0</td><td align="center"><font color=#999999>2016/3/25</font></td><td align="center"><font color=#999999>2016/3/25 16:17:24</font></td><td align="center"></td><td align="center">[<a target="_blank" href="/LineQY/Info?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1&id=33345">编辑</a>][<a href="/LineQY/InsertOLViewLog?ol_Oid=33345&url=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1">添加</a>][<a href="/LineQY/OLViewList?seakey=33345&seatype=2">查看</a>]<a href="javascript:del(33345);">[删除]</a></td></tr><tr bgcolor="#ffffff" onMouseOver="this.bgColor='#B3CFEE'" onMouseOut="this.bgColor='#ffffff'"><td align="center" >12</td><td align="center" height="24"><input type="checkbox" name="ID" value="34442"></td><td class=bianse><a href="/Zichan/InfoAdd?qid=34442&lineqy=1" style="color:#EE00EE;">[资]</a><a href="/GQInfo/InfoAdd?qid=34442&lineqy=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1" style="color:#EE00EE;">[供]</a><a style='cursor:pointer;'  href="javascript:void(0);" onclick="showUrl(this,34442);" target="_blank" >辽宁省本溪市南芬区山城石英砂厂</a> </td> <td align='left'>&nbsp;<a href='?searchid=key_aid&keywords=121'><font color='#0000ff'>徐蕊</font></a></td><td align="center"><strong>13081363888 </strong></td><td align="center">外部</td><td align="center">陈先生 </td><td align="center">石英砂厂</td><td align="center">私有</td><td align="center">小型</td><td align="center">辽宁-本溪市</td><td align="center">0</td><td align="center"><font color=#999999>2016/5/25</font></td><td align="center"><font color=#999999>2016/5/25 17:33:51</font></td><td align="center"></td><td align="center">[<a target="_blank" href="/LineQY/Info?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1&id=34442">编辑</a>][<a href="/LineQY/InsertOLViewLog?ol_Oid=34442&url=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1">添加</a>][<a href="/LineQY/OLViewList?seakey=34442&seatype=2">查看</a>]<a href="javascript:del(34442);">[删除]</a></td></tr><tr bgcolor="#ffffff" onMouseOver="this.bgColor='#B3CFEE'" onMouseOut="this.bgColor='#ffffff'"><td align="center" >13</td><td align="center" height="24"><input type="checkbox" name="ID" value="34890"></td><td class=bianse><a href="/Zichan/InfoAdd?qid=34890&lineqy=1" style="color:#EE00EE;">[资]</a><a href="/GQInfo/InfoAdd?qid=34890&lineqy=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1" style="color:#EE00EE;">[供]</a><a style='cursor:pointer;'  href="javascript:void(0);" onclick="showUrl(this,34890);" target="_blank" >池州市石台县皇隆包装制作有限公司</a> </td> <td align='left'>&nbsp;<a href='?searchid=key_aid&keywords=121'><font color='#0000ff'>徐蕊</font></a></td><td align="center"><strong>13856617163 </strong></td><td align="center">外部</td><td align="center">黄显亮</td><td align="center">包装制作厂</td><td align="center">私有</td><td align="center">小型</td><td align="center">安徽-池州市</td><td align="center">0</td><td align="center"><font color=#999999>2016/6/14</font></td><td align="center"><font color=#999999>2016/6/14 17:55:16</font></td><td align="center"></td><td align="center">[<a target="_blank" href="/LineQY/Info?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1&id=34890">编辑</a>][<a href="/LineQY/InsertOLViewLog?ol_Oid=34890&url=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1">添加</a>][<a href="/LineQY/OLViewList?seakey=34890&seatype=2">查看</a>]<a href="javascript:del(34890);">[删除]</a></td></tr><tr bgcolor="#ffffff" onMouseOver="this.bgColor='#B3CFEE'" onMouseOut="this.bgColor='#ffffff'"><td align="center" >14</td><td align="center" height="24"><input type="checkbox" name="ID" value="35915"></td><td class=bianse><a href="/Zichan/InfoAdd?qid=35915&lineqy=1" style="color:#EE00EE;">[资]</a><a href="/GQInfo/InfoAdd?qid=35915&lineqy=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1" style="color:#EE00EE;">[供]</a><a style='cursor:pointer;'  href="javascript:void(0);" onclick="showUrl(this,35915);" target="_blank" >舟山市普陀区陈钱山水产冷冻厂</a> </td> <td align='left'>&nbsp;<a href='?searchid=key_aid&keywords=121'><font color='#0000ff'>徐蕊</font></a></td><td align="center"><strong>13506809118</strong></td><td align="center">外部</td><td align="center">杨方富</td><td align="center">冷冻厂</td><td align="center">私有</td><td align="center">小型</td><td align="center">浙江-舟山市</td><td align="center">0</td><td align="center"><font color=#999999>2016/7/15</font></td><td align="center"><font color=#999999>2016/7/15 17:17:32</font></td><td align="center"></td><td align="center">[<a target="_blank" href="/LineQY/Info?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1&id=35915">编辑</a>][<a href="/LineQY/InsertOLViewLog?ol_Oid=35915&url=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1">添加</a>][<a href="/LineQY/OLViewList?seakey=35915&seatype=2">查看</a>]<a href="javascript:del(35915);">[删除]</a></td></tr><tr bgcolor="#ffffff" onMouseOver="this.bgColor='#B3CFEE'" onMouseOut="this.bgColor='#ffffff'"><td align="center" >15</td><td align="center" height="24"><input type="checkbox" name="ID" value="36011"></td><td class=bianse><a href="/Zichan/InfoAdd?qid=36011&lineqy=1" style="color:#EE00EE;">[资]</a><a href="/GQInfo/InfoAdd?qid=36011&lineqy=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1" style="color:#EE00EE;">[供]</a><a style='cursor:pointer;'  href="javascript:void(0);" onclick="showUrl(this,36011);" target="_blank" >电镀厂</a> </td> <td align='left'>&nbsp;<a href='?searchid=key_aid&keywords=121'><font color='#0000ff'>徐蕊</font></a></td><td align="center"><strong>13805806959</strong></td><td align="center">外部</td><td align="center">李文同 先生(老板)</td><td align="center">电镀厂</td><td align="center">私有</td><td align="center">小型</td><td align="center">浙江-宁波市</td><td align="center">0</td><td align="center"><font color=#999999>2016/7/20</font></td><td align="center"><font color=#999999>2016/7/20 14:54:29</font></td><td align="center"></td><td align="center">[<a target="_blank" href="/LineQY/Info?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1&id=36011">编辑</a>][<a href="/LineQY/InsertOLViewLog?ol_Oid=36011&url=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1">添加</a>][<a href="/LineQY/OLViewList?seakey=36011&seatype=2">查看</a>]<a href="javascript:del(36011);">[删除]</a></td></tr><tr bgcolor="#ffffff" onMouseOver="this.bgColor='#B3CFEE'" onMouseOut="this.bgColor='#ffffff'"><td align="center" >16</td><td align="center" height="24"><input type="checkbox" name="ID" value="36012"></td><td class=bianse><a href="/Zichan/InfoAdd?qid=36012&lineqy=1" style="color:#EE00EE;">[资]</a><a href="/GQInfo/InfoAdd?qid=36012&lineqy=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1" style="color:#EE00EE;">[供]</a><a style='cursor:pointer;'  href="javascript:void(0);" onclick="showUrl(this,36012);" target="_blank" >夏思平创业电镀厂22幢B座</a> </td> <td align='left'>&nbsp;<a href='?searchid=key_aid&keywords=121'><font color='#0000ff'>徐蕊</font></a></td><td align="center"><strong>13566022662</strong></td><td align="center">外部</td><td align="center">夏思平（22幢B座电镀车间厂长）</td><td align="center">电镀厂</td><td align="center">私有</td><td align="center">小型</td><td align="center">浙江-宁波市</td><td align="center">0</td><td align="center"><font color=#999999>2016/7/20</font></td><td align="center"><font color=#999999>2016/7/20 14:55:04</font></td><td align="center"></td><td align="center">[<a target="_blank" href="/LineQY/Info?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1&id=36012">编辑</a>][<a href="/LineQY/InsertOLViewLog?ol_Oid=36012&url=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1">添加</a>][<a href="/LineQY/OLViewList?seakey=36012&seatype=2">查看</a>]<a href="javascript:del(36012);">[删除]</a></td></tr><tr bgcolor="#ffffff" onMouseOver="this.bgColor='#B3CFEE'" onMouseOut="this.bgColor='#ffffff'"><td align="center" >17</td><td align="center" height="24"><input type="checkbox" name="ID" value="36020"></td><td class=bianse><a href="/Zichan/InfoAdd?qid=36020&lineqy=1" style="color:#EE00EE;">[资]</a><a href="/GQInfo/InfoAdd?qid=36020&lineqy=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1" style="color:#EE00EE;">[供]</a><a style='cursor:pointer;'  href="javascript:void(0);" onclick="showUrl(this,36020);" target="_blank" >余姚市福音电镀厂（分厂）</a> </td> <td align='left'>&nbsp;<a href='?searchid=key_aid&keywords=121'><font color='#0000ff'>徐蕊</font></a></td><td align="center"><strong>13655740877</strong></td><td align="center">外部</td><td align="center">许云锋先生</td><td align="center">电镀厂</td><td align="center">私有</td><td align="center">小型</td><td align="center">浙江-宁波市</td><td align="center">0</td><td align="center"><font color=#999999>2016/7/20</font></td><td align="center"><font color=#999999>2016/7/20 15:15:00</font></td><td align="center"></td><td align="center">[<a target="_blank" href="/LineQY/Info?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1&id=36020">编辑</a>][<a href="/LineQY/InsertOLViewLog?ol_Oid=36020&url=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1">添加</a>][<a href="/LineQY/OLViewList?seakey=36020&seatype=2">查看</a>]<a href="javascript:del(36020);">[删除]</a></td></tr><tr bgcolor="#ffffff" onMouseOver="this.bgColor='#B3CFEE'" onMouseOut="this.bgColor='#ffffff'"><td align="center" >18</td><td align="center" height="24"><input type="checkbox" name="ID" value="36021"></td><td class=bianse><a href="/Zichan/InfoAdd?qid=36021&lineqy=1" style="color:#EE00EE;">[资]</a><a href="/GQInfo/InfoAdd?qid=36021&lineqy=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1" style="color:#EE00EE;">[供]</a><a style='cursor:pointer;'  href="javascript:void(0);" onclick="showUrl(this,36021);" target="_blank" >宁波市鄞州振运电镀厂</a> </td> <td align='left'>&nbsp;<a href='?searchid=key_aid&keywords=121'><font color='#0000ff'>徐蕊</font></a></td><td align="center"><strong>13777099185</strong></td><td align="center">外部</td><td align="center">徐高先生 </td><td align="center">电镀厂</td><td align="center">私有</td><td align="center">小型</td><td align="center">浙江-宁波市</td><td align="center">0</td><td align="center"><font color=#999999>2016/7/20</font></td><td align="center"><font color=#999999>2016/7/20 15:16:18</font></td><td align="center"></td><td align="center">[<a target="_blank" href="/LineQY/Info?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1&id=36021">编辑</a>][<a href="/LineQY/InsertOLViewLog?ol_Oid=36021&url=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1">添加</a>][<a href="/LineQY/OLViewList?seakey=36021&seatype=2">查看</a>]<a href="javascript:del(36021);">[删除]</a></td></tr><tr bgcolor="#ffffff" onMouseOver="this.bgColor='#B3CFEE'" onMouseOut="this.bgColor='#ffffff'"><td align="center" >19</td><td align="center" height="24"><input type="checkbox" name="ID" value="36022"></td><td class=bianse><a href="/Zichan/InfoAdd?qid=36022&lineqy=1" style="color:#EE00EE;">[资]</a><a href="/GQInfo/InfoAdd?qid=36022&lineqy=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1" style="color:#EE00EE;">[供]</a><a style='cursor:pointer;'  href="javascript:void(0);" onclick="showUrl(this,36022);" target="_blank" >温州市龙湾海城钱银电镀厂</a> </td> <td align='left'>&nbsp;<a href='?searchid=key_aid&keywords=121'><font color='#0000ff'>徐蕊</font></a></td><td align="center"><strong>13706645329</strong></td><td align="center">外部</td><td align="center">张胜明先生</td><td align="center">电镀厂</td><td align="center">私有</td><td align="center">小型</td><td align="center">浙江-温州市</td><td align="center">0</td><td align="center"><font color=#999999>2016/7/20</font></td><td align="center"><font color=#999999>2016/7/20 15:17:01</font></td><td align="center"></td><td align="center">[<a target="_blank" href="/LineQY/Info?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1&id=36022">编辑</a>][<a href="/LineQY/InsertOLViewLog?ol_Oid=36022&url=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1">添加</a>][<a href="/LineQY/OLViewList?seakey=36022&seatype=2">查看</a>]<a href="javascript:del(36022);">[删除]</a></td></tr><tr bgcolor="#ffffff" onMouseOver="this.bgColor='#B3CFEE'" onMouseOut="this.bgColor='#ffffff'"><td align="center" >20</td><td align="center" height="24"><input type="checkbox" name="ID" value="36031"></td><td class=bianse><a href="/Zichan/InfoAdd?qid=36031&lineqy=1" style="color:#EE00EE;">[资]</a><a href="/GQInfo/InfoAdd?qid=36031&lineqy=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1" style="color:#EE00EE;">[供]</a><a style='cursor:pointer;'  href="javascript:void(0);" onclick="showUrl(this,36031);" target="_blank" >德泰电镀厂</a> </td> <td align='left'>&nbsp;<a href='?searchid=key_aid&keywords=121'><font color='#0000ff'>徐蕊</font></a></td><td align="center"><strong>13566989833</strong></td><td align="center">外部</td><td align="center">郭淑贞</td><td align="center">电镀厂</td><td align="center">私有</td><td align="center">小型</td><td align="center">浙江-金华市</td><td align="center">0</td><td align="center"><font color=#999999>2016/7/20</font></td><td align="center"><font color=#999999>2016/7/20 15:40:16</font></td><td align="center"></td><td align="center">[<a target="_blank" href="/LineQY/Info?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1&id=36031">编辑</a>][<a href="/LineQY/InsertOLViewLog?ol_Oid=36031&url=?li_state=0|keywords=|searchid=|view_sh=0|li_info_sum=-1|bcid=0|cid=0|frm_prov_id=0|frm_city_id=0|qytype=|qytype1=1|yonghutype=0|ischakan=-1|page=1">添加</a>][<a href="/LineQY/OLViewList?seakey=36031&seatype=2">查看</a>]<a href="javascript:del(36031);">[删除]</a></td></tr>
+    <tr>
+        <td align="center" bgcolor="#efefef" colspan="2">
+            <input type="button" name="Submit" value="删除" onclick="javastript: CheckDel()" />
+        </td>
+        <td colspan="14" align="right" bgcolor="#efefef">
+共6550条&nbsp;&nbsp;&nbsp;&nbsp;20 条/页&nbsp;&nbsp;&nbsp;&nbsp;共328页/<font color="red">当前1页&nbsp;&nbsp;&nbsp;&nbsp;<a  href="?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1">首 页</a>&nbsp;&nbsp;<a  href="?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1">上一页</a>&nbsp;&nbsp; <a style='color:red' href="?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=1">1</a>&nbsp;&nbsp; <a  href="?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=2">2</a>&nbsp;&nbsp; <a  href="?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=3">3</a>&nbsp;&nbsp; <a  href="?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=4">4</a>&nbsp;&nbsp; <a  href="?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=5">5</a>&nbsp;&nbsp; <a  href="?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=6">6</a>&nbsp;&nbsp; <a  href="?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=7">7</a>&nbsp;&nbsp; <a  href="?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=8">8</a>&nbsp;&nbsp; <a  href="?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=9">9</a>&nbsp;&nbsp;<a href="?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=2">下一页</a>&nbsp;&nbsp;<a  href="?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1&page=328">尾 页</a>&nbsp;&nbsp;
+            <input id="topage" name="topage" onkeyup="this.value=this.value.replace(/\D/g,'')" type="text" size="5">
+<input type="button" name="Submit" value="转到" onclick="javastript: TurnTo('?li_state=0&keywords=&searchid=&view_sh=0&li_info_sum=-1&bcid=0&cid=0&frm_prov_id=0&frm_city_id=0&qytype=&qytype1=1&yonghutype=0&ischakan=-1')">
+        </td>
+    </tr>
+</table>
+
+  
+
+</body>
+</html>
