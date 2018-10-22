@@ -65,7 +65,7 @@ hello world
  * Time: 08:42
  */
 require_once '../base.php'; #依赖和一些便捷函数
-use Base\Base; #处理sql
+use Base\Base;
 use QL\QueryList; #采集
 
 class newsCommand
