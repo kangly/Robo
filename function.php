@@ -5,13 +5,9 @@
  * Date: 2017/11/8
  * Time: 10:00
  */
-require_once 'vendor/autoload.php';
-
-date_default_timezone_set('Asia/Shanghai');
-ini_set('memory_limit','2048M');
 
 /**
- * 输出
+ * 简单格式化输出
  * @param $str
  */
 function de($str){
@@ -20,7 +16,7 @@ function de($str){
 }
 
 /**
- * 当前时间
+ * 当前时间(年-月-日 时:分:秒)
  * @return bool|string
  */
 function _time(){
@@ -28,7 +24,15 @@ function _time(){
 }
 
 /**
- * 简单的判断一下参数是否为一个URL链接
+ * 当前时间(年-月-日)
+ * @return bool|string
+ */
+function _day(){
+    return date('Y-m-d');
+}
+
+/**
+ * 简单判断一下参数是否为一个URL链接
  * @param  string  $str
  * @return boolean
  */

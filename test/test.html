@@ -1,15 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-      <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
-
+    <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
     <title>线下企业管理</title>
-     
-        
     <script>
-       
-        //获取cookie字符串 
-     
+        //获取cookie字符串
         var strCookie = document.cookie;
         var styleTemp = "default";
         var arrCookie = strCookie.split("; ");
@@ -39,38 +34,24 @@
     <link href="/Content/JqueryEasyUI/themes/icon.css" rel="stylesheet" />
     <link href="/Content/Site.css" rel="stylesheet" />
 
-    
     <script src="/Content/JqueryEasyUI/jquery-1.8.0.min.js"></script>
     <script src="/Content/JqueryEasyUI/jquery.easyui.min.js"></script>
-   
-   
-     
     <script src="/Content/datapattern.js"></script>
-
-
-     
-
-
- 
 </head>
-<body >
-    
+<body>
 <style type="text/css">
     .font_bold {
         font-size: 13px;
         font-weight: bold;
     }
-
     .bian {
         color: #ff0000;
         text-decoration: none;
     }
-
-        .bian a:visited {
-            color: #ff0000;
-            text-decoration: none;
-        }
-
+    .bian a:visited {
+        color: #ff0000;
+        text-decoration: none;
+    }
     #loading {
         _display: none;
         position: fixed;
@@ -81,30 +62,30 @@
         height: 100%;
     }
 
-        #loading .ld_overlay {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
+    #loading .ld_overlay {
+             position: relative;
+             width: 100%;
+             height: 100%;
+         }
 
-        #loading .ld_body {
-            position: fixed;
-            left: 46%;
-            top: 320px;
-            width: 180px;
-            height: 40px;
-            padding-top: 10px;
-            border-radius: 3px;
-            background-color: #fafafa;
-            background-color: rgba(0,0,0,.1);
-            color: #666;
-            font-size: 12px;
-            text-align: center;
-        }
+    #loading .ld_body {
+        position: fixed;
+        left: 46%;
+        top: 320px;
+        width: 180px;
+        height: 40px;
+        padding-top: 10px;
+        border-radius: 3px;
+        background-color: #fafafa;
+        background-color: rgba(0,0,0,.1);
+        color: #666;
+        font-size: 12px;
+        text-align: center;
+    }
 
-            #loading .ld_body p {
-                margin-top: 5px;
-            }
+    #loading .ld_body p {
+        margin-top: 5px;
+    }
 </style>
 <script type="text/javascript">
     $(function () {
@@ -256,9 +237,6 @@
     }
 
 </script>
-
-
-
 <div id="loading" style="display: none">
     <div class="ld_overlay"></div>
     <div class="ld_body">
@@ -445,8 +423,5 @@
         </td>
     </tr>
 </table>
-
-  
-
 </body>
 </html>

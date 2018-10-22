@@ -53,7 +53,7 @@ hello world
 
 # 新增文件
 
-在app目录下创建 *Command.php 文件，参考 testCommand.php 或 novelCommand.php 文件。
+在app目录下创建 *Command.php 文件，参考 testCommand.php 文件。
 例如，要写一个处理采集新闻的操作，在app目录下新建newsCommand.php文件，文件内容如下：
 
 ```php
@@ -64,15 +64,13 @@ hello world
  * Date: 2018/1/3
  * Time: 08:42
  */
-require_once '../function.php'; #依赖和一些便捷函数
-
-use QL\QueryList; #采集类
+require_once '../base.php'; #依赖和一些便捷函数
+use Base\Base; #处理sql
+use QL\QueryList; #采集
 
 class newsCommand
 {
-    /**
-     * 抓取新浪新闻
-     */
+    //抓取新浪新闻
     public function run()
     {
         #采集地址

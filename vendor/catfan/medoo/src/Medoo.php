@@ -35,26 +35,6 @@ class Medoo
 	public function __construct($options = null)
 	{
 		try {
-			//变动,添加了默认配置
-			if(!$options)
-			{
-				$options = [
-					'database_type' => 'mysql',
-					'database_name' => 'test',
-					'server' => '127.0.0.1',
-					'username' => 'root',
-					'password' => '922419',
-
-					// 可选参数
-					'port' => 3306,
-					'charset' => 'utf8',
-					'option' => [
-						PDO::ATTR_CASE => PDO::CASE_NATURAL,    //列名按照原始的方式
-						PDO::ATTR_PERSISTENT => true    //默认这个不是长连接，如果需要数据库长连接，需要最后加一个参数,变成这样：array(PDO::ATTR_PERSISTENT => true)
-					]
-				];
-			}
-
 			if (is_array($options))
 			{
 				if (isset($options[ 'database_type' ]))

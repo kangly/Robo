@@ -5,21 +5,27 @@
  * Date: 2018/1/2
  * Time: 16:43
  */
-require_once '../function.php';
+require_once '../base.php';
 
+use Base\Base;
 use QL\QueryList;
+use GuzzleHttp\Client;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 /**
- * 测试程序
+ * 测试(例子)
+ * 运行方法: robo run --load-from /path/to/my/other/project
+ *
+ * Robo:https://robo.li
+ * QueryList:https://doc.querylist.cc
+ * GuzzleHttp:https://guzzle-cn.readthedocs.io
+ * PhpSpreadsheet:https://phpspreadsheet.readthedocs.io
+ *
  * Class testCommand
  */
 class testCommand
 {
-    //运行方法
-    //robo run --load-from /path/to/my/other/project
-
     /**
      * 在当前目录,hello是方法,worlds是参数(参数可为空)
      * robo hello worlds --load-from TestCommand.php
@@ -33,8 +39,23 @@ class testCommand
         de('Hello '.$world);
     }
 
-    //下面是一些采集小例子
-    //querylist参考文档地址:https://doc.querylist.cc
+    /**
+     * 使用Medoo,需要创建对应sql
+     * 参考:https://medoo.lvtao.net/
+     */
+    public function sql()
+    {
+        $database = new Base();
+
+        $data = $database->select("admin", [
+            "username",
+            "nickname"
+        ], [
+            "id" => 1
+        ]);
+
+        de($data);
+    }
 
     /**
      * 移除页面头部head区域,乱码终极解决方案
@@ -45,7 +66,12 @@ class testCommand
      */
     public function test1()
     {
-        $html = file_get_contents('http://www.baidu.com/s?wd=QueryList');
+        //$html = file_get_contents('http://www.baidu.com/s?wd=QueryList');
+
+        //使用GuzzleHttp
+        $client = new Client();
+        $res = $client->request('GET', 'http://www.baidu.com/s?wd=QueryList');
+        $html = $res->getBody();
 
         $ql = QueryList::rules([
             'title'=>array('h3','text'),
@@ -91,7 +117,7 @@ class testCommand
     }
 
     /**
-     * 简单测试生成excel文件
+     * 简单生成excel文件
      * robo test4 --load-from TestCommand.php
      * robo test4 --load-from app/TestCommand.php
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
@@ -113,7 +139,7 @@ class testCommand
         $sheet->setCellValue('E1', '企业规模');
         $sheet->setCellValue('F1', '地区');
 
-        $url = '../test/1.html';
+        $url = '../test/test.html';
         $content = file_get_contents($url);
 
         $ql = QueryList::html($content)
