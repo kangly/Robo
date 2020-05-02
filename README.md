@@ -3,16 +3,6 @@
 * 有时需要在终端命令中执行php代码(例如采集一些数据)，使用 [Robo](https://github.com/consolidation/Robo) ，它是一个简单的PHP任务运行器旨在自动化常见的任务。
 * 包含一些示例，采集主要使用 [QueryList](https://querylist.cc/) 实现，它使用jQuery选择器来做采集。
 
-#### 注意：
-
-此项目使用的QueryList版本为4.0(需php>=7.0)，如果你的php版本低于7.0，如果需要QueryList采集数据，可以考虑使用 [QueryList3](http://v3.querylist.cc/)。安装QueryList3后默认的采集示例将不能使用。
-
-使用 [composer](http://docs.phpcomposer.com/) 管理包
-
-```
-composer remove jaeger/querylist #删除高版本的querylist
-composer require jaeger/querylist:V3.2.1 #安装querylist:V3.2.1
-```
 
 ## 准备工作
 
@@ -24,6 +14,7 @@ wget http://robo.li/robo.phar
 ```
 chmod +x robo.phar && sudo mv robo.phar /usr/bin/robo
 ```
+
 ### 注意
 
 Mac环境下操作这步时，提示：`Operation not permitted`。
@@ -37,7 +28,7 @@ csrutil disable
 ```
 csrutil enable
 ```
-OK，到这里准备工作就完成了。
+OK，到这里准备工作就完成了。记得执行`composer install`安装依赖。
 
 # Getting Started
 
