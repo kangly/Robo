@@ -35,7 +35,7 @@ class Base extends Medoo
             'database_name' => 'test',               //数据库名称
             'server' => '127.0.0.1',                 //数据库地址
             'username' => 'root',                    //数据库用户名
-            'password' => '922419',                  //数据库密码
+            'password' => '123456',                  //数据库密码
             // 可选参数
             'port' => 3306,                          //数据库端口
             'charset' => 'utf8',                     //默认数据库编码
